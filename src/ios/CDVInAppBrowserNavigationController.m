@@ -18,6 +18,7 @@
  */
 
 #import "CDVInAppBrowserNavigationController.h"
+#import <Cordova/CDVAvailability.h>
 
 #define    STATUSBAR_HEIGHT 20.0
 
@@ -34,6 +35,20 @@
     CGRect statusBarFrame = [self invertFrameIfNeeded:[UIApplication sharedApplication].statusBarFrame];
     statusBarFrame.size.height = STATUSBAR_HEIGHT;
     // simplified from: http://stackoverflow.com/a/25669695/219684
+ 
+    BOOL isIOS11 = (IsAtLeastiOSVersion(@"11.0"));
+    if (isIOS11) {
+        CGFloat height = statusBarFrame.size.height;
+        #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+        if (@available(iOS 11.0, *)) {
+            float safeAreaTop = [[[UIApplication sharedApplication] delegate] window].safeAreaInsets.top;
+            if (safeAreaTop > height && safeAreaTop > 0) {
+                height = safeAreaTop;
+            }
+            statusBarFrame.size.height = height;
+        }
+        #endif
+    }
 
     UIToolbar* bgToolbar = [[UIToolbar alloc] initWithFrame:statusBarFrame];
     bgToolbar.barStyle = UIBarStyleDefault;
