@@ -1122,7 +1122,20 @@ BOOL isExiting = FALSE;
         viewRenderedAtLeastOnce = TRUE;
         CGRect viewBounds = [self.webView bounds];
         viewBounds.origin.y = STATUSBAR_HEIGHT;
-        viewBounds.size.height = viewBounds.size.height - STATUSBAR_HEIGHT;
+        BOOL isIOS11 = (IsAtLeastiOSVersion(@"11.0"));
+        if (isIOS11) {
+            CGFloat height = viewBounds.origin.y;
+            #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+            if (@available(iOS 11.0, *)) {
+                float safeAreaTop = [[[UIApplication sharedApplication] delegate] window].safeAreaInsets.top;
+                if (safeAreaTop > height && safeAreaTop > 0) {
+                    height = safeAreaTop;
+                }
+                viewBounds.origin.y = height;
+            }
+            #endif
+        }
+        viewBounds.size.height = viewBounds.size.height - viewBounds.origin.y;
         self.webView.frame = viewBounds;
         [[UIApplication sharedApplication] setStatusBarStyle:[self preferredStatusBarStyle]];
     }
